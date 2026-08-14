@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hey Beautiful</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,500&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep: #1a060b;
+    --bg-wine: #2b0a14;
+    --red: #e0304f;
+    --red-bright: #ff5f75;
+    --red-deep: #8f1032;
+    --paper: #f6ecdd;
+    --paper-edge: #e9dcc5;
+    --ink: #3a2229;
+    --gold: #e0a95a;
+  }
+  *{ box-sizing: border-box; }
+  html,body{
+    margin:0; padding:0; min-height:100%;
+    background: var(--bg-deep);
+    font-family:'Cormorant Garamond', serif;
+    color: var(--paper);
+    overflow-x:hidden;
+  }
+  body{
+    min-height:100vh;
+    display:flex; align-items:center; justify-content:center;
+    padding: 32px 18px;
+    position: relative;
+    isolation: isolate;
+  }
+  body::before{
+    content:'';
+    position:fixed; inset:0;
+    background:
+      radial-gradient(circle at 50% 12%, rgba(255,95,117,0.16), transparent 55%),
+      radial-gradient(circle at 15% 90%, rgba(224,169,90,0.08), transparent 50%),
+      var(--bg-wine);
+    z-index:-2;
+  }
+
+  /* ambient floating hearts, persistent across screens */
+  .hearts-field{ position: fixed; inset: 0; overflow: hidden; z-index: -1; pointer-events: none; }
+  .drift{
+    position: absolute; bottom: -40px; color: var(--red);
+    opacity: 0; animation-name: floatUp; animation-timing-function: ease-in; animation-iteration-count: infinite;
+  }
+  @keyframes floatUp{
+    0%{ transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
+    8%{ opacity: 0.5; }
+    50%{ transform: translateY(-52vh) translateX(var(--drift,20px)) rotate(12deg); }
+    92%{ opacity: 0.35; }
+    100%{ transform: translateY(-105vh) translateX(calc(var(--drift,20px) * -1)) rotate(-10deg); opacity: 0; }
+  }
+
+  .app{ width: 100%; max-width: 480px; position: relative; z-index: 1; }
+
+  .screen{
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+  }
+  .screen.active{
+    display: flex;
+    animation: screenIn 0.7s cubic-bezier(.2,.7,.3,1) both;
+  }
+  @keyframes screenIn{
+    from{ opacity: 0; transform: translateY(22px); }
+    to{ opacity: 1; transform: translateY(0); }
+  }
+
+  button{ font-family: inherit; }
+
+  /* ---------- Screen 1: Hero ---------- */
+  .wave{
+    font-size: 42px; margin-bottom: 6px;
+    animation: wave 2.4s ease-in-out infinite; display:inline-block; transform-origin: 70% 70%;
+  }
+  @keyframes wave{
+    0%,60%,100%{ transform: rotate(0deg); }
+    10%{ transform: rotate(14deg); } 20%{ transform: rotate(-8deg); }
+    30%{ transform: rotate(14deg); } 40%{ transform: rotate(-4deg); } 50%{ transform: rotate(10deg); }
+  }
+  .hero-heading{
+    font-family:'Playfair Display', serif;
+    font-weight: 700;
+    font-size: clamp(38px, 11vw, 58px);
+    margin: 0 0 12px;
+    background: linear-gradient(90deg, var(--red-bright), var(--gold), var(--red-bright));
+    background-size: 200% auto;
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: shimmer 4s linear infinite;
+  }
+  @keyframes shimmer{
+    to{ background-position: -200% center; }
+  }
+  .hero-sub{
+    font-size: 19px; color: var(--paper); opacity: 0.8; margin: 0 0 40px;
+  }
+  .btn-red{
+    background: linear-gradient(135deg, var(--red-bright), var(--red-deep));
+    color: #fff5f2;
+    border: none;
+    padding: 15px 34px;
+    border-radius: 999px;
+    font-size: 17px;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    box-shadow: 0 10px 26px rgba(224,48,79,0.45);
+    animation: pulseBtn 2s ease-in-out infinite;
+    transition: transform 0.2s ease;
+  }
+  .btn-red:hover{ transform: translateY(-2px); }
+  .btn-red:active{ transform: scale(0.97); }
+  @keyframes pulseBtn{
+    0%,100%{ box-shadow: 0 10px 26px rgba(224,48,79,0.45); }
+    50%{ box-shadow: 0 10px 34px rgba(255,95,117,0.7); }
+  }
+
+  /* ---------- Screen 2: Loading ---------- */
+  .load-title{ font-size: 20px; color: var(--paper); opacity: 0.85; margin: 0 0 30px; letter-spacing: 0.03em; }
+  .percent{
+    font-family:'Playfair Display', serif;
+    font-weight: 700;
+    font-size: clamp(52px, 16vw, 84px);
+    color: var(--red-bright);
+    margin: 0 0 18px;
+  }
+  .bar-track{
+    width: 100%; max-width: 300px; height: 8px; border-radius: 999px;
+    background: rgba(246,236,221,0.15); overflow: hidden; margin-bottom: 26px;
+  }
+  .bar-fill{
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, var(--red-bright), var(--gold));
+    border-radius: 999px;
+  }
+  .warning{
+    font-size: 17px;
+    color: var(--red-bright);
+    letter-spacing: 0.05em;
+    opacity: 0;
+    font-weight: 500;
+  }
+  .warning.show{
+    opacity: 1;
+    animation: blinkWarn 0.6s steps(1) infinite;
+  }
+  @keyframes blinkWarn{
+    50%{ opacity: 0.15; }
+  }
+
+  /* ---------- Screen 3: Boxes ---------- */
+  .big-heart{
+    width: 74px; height: 74px; margin-bottom: 6px;
+    animation: heartbeat 1.6s ease-in-out infinite;
+  }
+  @keyframes heartbeat{
+    0%,100%{ transform: scale(1); } 15%{ transform: scale(1.12); } 30%{ transform: scale(1); }
+    45%{ transform: scale(1.08); } 60%{ transform: scale(1); }
+  }
+  .boxes-sub{ font-size: 17px; color: var(--paper); opacity: 0.75; margin: 0 0 26px; }
+  .box-grid{
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; width: 100%; margin-bottom: 30px;
+  }
+  .box-grid .card:last-child{ grid-column: 1 / -1; }
+  .card{
+    perspective: 800px; height: 110px; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  .card-inner{
+    position: relative; width: 100%; height: 100%; transition: transform 0.6s cubic-bezier(.4,.2,.2,1);
+    transform-style: preserve-3d;
+  }
+  .card.flipped .card-inner{ transform: rotateY(180deg); }
+  .card-face{
+    position: absolute; inset: 0; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    backface-visibility: hidden; padding: 12px;
+  }
+  .card-front{
+    background: rgba(246,236,221,0.06);
+    border: 1px solid rgba(246,236,221,0.18);
+  }
+  .card-front svg{ width: 26px; height: 26px; }
+  .card-back{
+    background: linear-gradient(135deg, var(--red-bright), var(--red-deep));
+    color: #fff5f2;
+    transform: rotateY(180deg);
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  .btn-outline{
+    background: transparent;
+    color: var(--paper);
+    border: 1px solid rgba(246,236,221,0.4);
+    padding: 12px 30px;
+    border-radius: 999px;
+    font-size: 15px;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: background 0.25s ease, transform 0.2s ease;
+  }
+  .btn-outline:hover{ background: rgba(246,236,221,0.08); transform: translateY(-2px); }
+
+  /* ---------- Screen 4: Letter ---------- */
+  .letter-title{
+    font-family:'Playfair Display', serif; font-style: italic; font-weight: 600;
+    font-size: clamp(24px, 6vw, 30px); margin: 0 0 30px; color: var(--paper);
+  }
+  .env-wrap{
+    position: relative; width: min(260px, 72vw); aspect-ratio: 3/2; cursor: pointer;
+    -webkit-tap-highlight-color: transparent; background: none; border: none; padding: 0;
+  }
+  .envelope{
+    position: absolute; inset: 0; border-radius: 6px;
+    background: linear-gradient(180deg, #e7d7bc, #ddc9a9);
+    box-shadow: 0 16px 36px rgba(0,0,0,0.35); overflow: hidden;
+  }
+  .env-pocket{ position:absolute; left:0; right:0; bottom:0; height: 62%; background: linear-gradient(180deg, #ddc9a9, #cdb790); }
+  .flap{
+    position:absolute; top:0; left:0; right:0; height: 62%;
+    background: linear-gradient(160deg, #ecdec4, #dcc7a2);
+    clip-path: polygon(0 0, 100% 0, 50% 78%);
+    transform-origin: top center; transition: transform 0.7s cubic-bezier(.4,0,.2,1); z-index: 3;
+  }
+  .env-wrap.open .flap{ transform: rotateX(180deg); }
+  .seal{
+    position: absolute; top: 40%; left: 50%; transform: translate(-50%,-50%);
+    width: 42px; height: 42px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #ff97a4, var(--red) 65%, var(--red-deep) 100%);
+    display:flex; align-items:center; justify-content:center; z-index: 4;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+  .seal svg{ width: 18px; height: 18px; }
+  .env-wrap.open .seal{ opacity: 0; transform: translate(-50%,-50%) scale(0.4); }
+  .peek{
+    position:absolute; left: 10%; right: 10%; top: 14%; height: 60%;
+    background: var(--paper); border-radius: 3px; box-shadow: 0 -6px 14px rgba(0,0,0,0.12);
+    z-index: 2; transition: transform 0.6s cubic-bezier(.4,0,.2,1) 0.15s;
+  }
+  .env-wrap.open .peek{ transform: translateY(-58%); }
+  .tap-label{ margin-top: 22px; font-size: 15px; opacity: 0.7; transition: opacity 0.3s ease; }
+  .env-wrap.open ~ .tap-label{ opacity: 0; height: 0; margin: 0; }
+
+  .letter-box{
+    width: 100%; margin-top: 26px; background: var(--paper); color: var(--ink);
+    border-radius: 12px; padding: 34px 28px 30px; box-shadow: 0 24px 56px rgba(0,0,0,0.5);
+    opacity: 0; transform: translateY(20px) scale(0.98);
+    transition: opacity 0.6s cubic-bezier(.2,.7,.3,1), transform 0.6s cubic-bezier(.2,.7,.3,1);
+    pointer-events: none; text-align: left; position: relative;
+  }
+  .letter-box.show{ opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+  .letter-box::before{
+    content:''; position:absolute; top: 12px; left: 12px; right: 12px; bottom: 12px;
+    border: 1px solid var(--paper-edge); border-radius: 6px; pointer-events: none;
+  }
+  .letter-mark{ display:block; font-family:'Playfair Display', serif; font-style: italic; font-size: 18px; color: var(--red); margin-bottom: 14px; }
+  .letter-box p{ font-size: 18px; line-height: 1.7; margin: 0 0 14px; opacity: 0; transform: translateY(10px); }
+  .letter-box.show p{ animation: lineIn 0.6s ease forwards; }
+  .letter-box.show p:nth-child(2){ animation-delay: 0.2s; }
+  .letter-box.show p:nth-child(3){ animation-delay: 0.4s; }
+  .letter-box.show p:nth-child(4){ animation-delay: 0.6s; }
+  .letter-box.show p:nth-child(5){ animation-delay: 0.8s; }
+  @keyframes lineIn{ to{ opacity: 1; transform: translateY(0); } }
+  .letter-box p:last-child{ margin-bottom: 0; }
+
+  .btn-red.small{
+    margin-top: 26px; padding: 12px 28px; font-size: 15px; opacity: 0; pointer-events: none;
+    transition: opacity 0.5s ease 0.4s;
+  }
+  .btn-red.small.show{ opacity: 1; pointer-events: auto; }
+
+  /* ---------- Screen 5: Final ---------- */
+  .final-wrap{ padding: 40px 0; }
+  .final-heart{ font-size: 34px; margin-bottom: 20px; animation: heartbeat 1.6s ease-in-out infinite; display: inline-block; }
+  .final-text{
+    font-family:'Poppins', sans-serif;
+    font-weight: 500;
+    font-size: clamp(24px, 7vw, 34px);
+    line-height: 1.5;
+    color: var(--paper);
+    opacity: 0;
+    animation: finalIn 1.2s ease 0.3s forwards;
+  }
+  @keyframes finalIn{
+    from{ opacity: 0; transform: translateY(14px) scale(0.97); }
+    to{ opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .final-sub{
+    font-family:'Poppins', sans-serif; font-weight: 300; font-size: 14px;
+    color: var(--paper); opacity: 0; margin-top: 16px;
+    animation: finalIn 1.2s ease 1s forwards;
+    letter-spacing: 0.06em;
+  }
+
+  .watermark{
+    position: fixed;
+    left: 50%;
+    bottom: 14px;
+    transform: translateX(-50%);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    color: var(--paper);
+    opacity: 0.35;
+    z-index: 5;
+    pointer-events: none;
+  }
+
+  .watermark{
+    position: fixed;
+    left: 0; right: 0; bottom: 14px;
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 300;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    color: var(--paper);
+    opacity: 0.35;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+
+  .watermark{
+    position: fixed;
+    left: 50%;
+    bottom: 18px;
+    transform: translateX(-50%);
+    font-family: 'Poppins', sans-serif;
+    font-weight: 300;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    color: var(--paper);
+    opacity: 0.35;
+    z-index: 5;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+
+  <div class="hearts-field" id="heartsField"></div>
+  <div class="watermark">@mr.vinaykumar09</div>
+
+  <div class="app">
+
+    <!-- Screen 1: Hero -->
+    <section class="screen active" id="screen-hero">
+      <span class="wave" aria-hidden="true">👋</span>
+      <h1 class="hero-heading">Hey Beautiful</h1>
+      <p class="hero-sub">Do you even know how cute you are?</p>
+      <button class="btn-red" data-next="screen-loading">Open my heart</button>
+    </section>
+
+    <!-- Screen 2: Loading -->
+    <section class="screen" id="screen-loading">
+      <p class="load-title">measuring your cuteness...</p>
+      <div class="percent" id="percentNum">0%</div>
+      <div class="bar-track"><div class="bar-fill" id="barFill"></div></div>
+      <p class="warning" id="warningText">⚠ warning: cuteness levels critical</p>
+    </section>
+
+    <!-- Screen 3: Boxes -->
+    <section class="screen" id="screen-boxes">
+      <svg class="big-heart" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M12 21s-7.5-4.6-10-9.2C0.3 8.1 2 4.5 5.4 4c2.1-0.3 3.9 0.9 4.6 2.6C10.7 4.9 12.5 3.7 14.6 4c3.4 0.5 5.1 4.1 3.4 7.8C15.5 16.4 12 21 12 21z" fill="#e0304f"/>
+      </svg>
+      <p class="boxes-sub">tap each one to reveal</p>
+      <div class="box-grid" id="boxGrid">
+        <div class="card" data-text="Your smile lights up my whole day.">
+          <div class="card-inner">
+            <div class="card-face card-front"><svg viewBox="0 0 24 24" fill="none"><path d="M12 21s-7.5-4.6-10-9.2C0.3 8.1 2 4.5 5.4 4c2.1-0.3 3.9 0.9 4.6 2.6C10.7 4.9 12.5 3.7 14.6 4c3.4 0.5 5.1 4.1 3.4 7.8C15.5 16.4 12 21 12 21z" fill="#f6ecdd" opacity="0.8"/></svg></div>
+            <div class="card-face card-back"><span></span></div>
+          </div>
+        </div>
+        <div class="card" data-text="Your laugh is my favorite sound.">
+          <div class="card-inner">
+            <div class="card-face card-front"><svg viewBox="0 0 24 24" fill="none"><path d="M12 21s-7.5-4.6-10-9.2C0.3 8.1 2 4.5 5.4 4c2.1-0.3 3.9 0.9 4.6 2.6C10.7 4.9 12.5 3.7 14.6 4c3.4 0.5 5.1 4.1 3.4 7.8C15.5 16.4 12 21 12 21z" fill="#f6ecdd" opacity="0.8"/></svg></div>
+            <div class="card-face card-back"><span></span></div>
+          </div>
+        </div>
+        <div class="card" data-text="Your eyes tell stories I never get tired of.">
+          <div class="card-inner">
+            <div class="card-face card-front"><svg viewBox="0 0 24 24" fill="none"><path d="M12 21s-7.5-4.6-10-9.2C0.3 8.1 2 4.5 5.4 4c2.1-0.3 3.9 0.9 4.6 2.6C10.7 4.9 12.5 3.7 14.6 4c3.4 0.5 5.1 4.1 3.4 7.8C15.5 16.4 12 21 12 21z" fill="#f6ecdd" opacity="0.8"/></svg></div>
+            <div class="card-face card-back"><span></span></div>
+          </div>
+        </div>
+        <div class="card" data-text="Your kindness makes people feel safe.">
+          <div class="card-inner">
+            <div class="card-face card-front"><svg viewBox="0 0 24 24" fill="none"><path d="M12 21s-7.5-4.6-10-9.2C0.3 8.1 2 4.5 5.4 4c2.1-0.3 3.9 0.9 4.6 2.6C10.7 4.9 12.5 3.7 14.6 4c3.4 0.5 5.1 4.1 3.4 7.8C15.5 16.4 12 21 12 21z" fill="#f6ecdd" opacity="0.8"/></svg></div>
+            <div class="card-face card-back"><span></span></div>
+          </div>
+        </div>
+        <div class="card" data-text="Being with you feels like home.">
+          <div class="card-inner">
+            <div class="card-face card-front"><svg viewBox="0 0 24 24" fill="none"><path d="M12 21s-7.5-4.6-10-9.2C0.3 8.1 2 4.5 5.4 4c2.1-0.3 3.9 0.9 4.6 2.6C10.7 4.9 12.5 3.7 14.6 4c3.4 0.5 5.1 4.1 3.4 7.8C15.5 16.4 12 21 12 21z" fill="#f6ecdd" opacity="0.8"/></svg></div>
+            <div class="card-face card-back"><span></span></div>
+          </div>
+        </div>
+      </div>
+      <button class="btn-outline" data-next="screen-letter">See more</button>
+    </section>
+
+    <!-- Screen 4: Letter -->
+    <section class="screen" id="screen-letter">
+      <h2 class="letter-title">A little note for you</h2>
+
+      <button class="env-wrap" id="envelope" aria-expanded="false" aria-controls="letterBox">
+        <div class="envelope">
+          <div class="env-pocket"></div>
+          <div class="peek"></div>
+          <div class="flap"></div>
+          <div class="seal">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 21s-7.5-4.6-10-9.2C0.3 8.1 2 4.5 5.4 4c2.1-0.3 3.9 0.9 4.6 2.6C10.7 4.9 12.5 3.7 14.6 4c3.4 0.5 5.1 4.1 3.4 7.8C15.5 16.4 12 21 12 21z" fill="#f6ecdd"/>
+            </svg>
+          </div>
+        </div>
+      </button>
+      <p class="tap-label">tap to open</p>
+
+      <div class="letter-box" id="letterBox">
+        <span class="letter-mark">Ex?</span>
+        <p>No, she is not my ex, not my past, not my enemy.</p>
+        <p>She is the woman I once loved with every piece of my heart. The one I dreamed of forever with.</p>
+        <p>She is the woman that taught me what love feels like — both beautiful and painful. She's the reason I cried, the reason I smiled, the reason I believed in love.</p>
+        <p>Maybe she's no longer mine, but in the quiet corners of my heart, she will always remain my greatest love story.</p>
+      </div>
+
+      <button class="btn-red small" id="oneMoreBtn" data-next="screen-final">One more thing</button>
+    </section>
+
+    <!-- Screen 5: Final -->
+    <section class="screen final-wrap" id="screen-final">
+      <span class="final-heart" aria-hidden="true">❤</span>
+      <p class="final-text">You'll always be special to me.</p>
+      <p class="final-sub">always.</p>
+    </section>
+
+  </div>
+
+  <span class="watermark">@mr.vinaykumar09</span>
+
+<script>
+  // Ambient floating hearts
+  const field = document.getElementById('heartsField');
+  const glyphs = ['♥','❤','♡'];
+  const count = window.innerWidth < 480 ? 12 : 20;
+  for (let i = 0; i < count; i++){
+    const el = document.createElement('span');
+    el.className = 'drift';
+    el.textContent = glyphs[Math.floor(Math.random()*glyphs.length)];
+    const size = 10 + Math.random()*18;
+    el.style.left = Math.random()*100 + 'vw';
+    el.style.fontSize = size + 'px';
+    el.style.setProperty('--drift', (Math.random()*60 - 30) + 'px');
+    el.style.animationDuration = (9 + Math.random()*8) + 's';
+    el.style.animationDelay = (Math.random()*10) + 's';
+    field.appendChild(el);
+  }
+
+  // Fill card backs with their data-text
+  document.querySelectorAll('.card').forEach(card => {
+    card.querySelector('.card-back span').textContent = card.dataset.text;
+    card.addEventListener('click', () => card.classList.toggle('flipped'));
+  });
+
+  // Screen navigation
+  function showScreen(id){
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    const target = document.getElementById(id);
+    target.classList.add('active');
+    if (id === 'screen-loading') runLoading();
+  }
+  document.querySelectorAll('[data-next]').forEach(btn => {
+    btn.addEventListener('click', () => showScreen(btn.dataset.next));
+  });
+
+  // Loading screen: 0 -> 1000% then warning, then auto-advance
+  let loadingStarted = false;
+  function runLoading(){
+    if (loadingStarted) return;
+    loadingStarted = true;
+    const percentNum = document.getElementById('percentNum');
+    const barFill = document.getElementById('barFill');
+    const warningText = document.getElementById('warningText');
+    const duration = 2600;
+    const start = performance.now();
+    function tick(now){
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      const value = Math.round(eased * 1000);
+      percentNum.textContent = value + '%';
+      barFill.style.width = Math.min(100, value / 10) + '%';
+      if (t < 1){
+        requestAnimationFrame(tick);
+      } else {
+        warningText.classList.add('show');
+        setTimeout(() => showScreen('screen-boxes'), 2000);
+      }
+    }
+    requestAnimationFrame(tick);
+  }
+
+  // Envelope open/close on letter screen
+  const envelope = document.getElementById('envelope');
+  const letterBox = document.getElementById('letterBox');
+  const oneMoreBtn = document.getElementById('oneMoreBtn');
+  envelope.addEventListener('click', () => {
+    const isOpen = envelope.classList.toggle('open');
+    envelope.setAttribute('aria-expanded', String(isOpen));
+    if (isOpen){
+      setTimeout(() => {
+        letterBox.classList.add('show');
+        oneMoreBtn.classList.add('show');
+      }, 500);
+    } else {
+      letterBox.classList.remove('show');
+      oneMoreBtn.classList.remove('show');
+    }
+  });
+</script>
+
+</body>
+</html>
